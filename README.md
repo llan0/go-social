@@ -1,10 +1,12 @@
 # go-social
 
-Prerequisites
+Using,
 - Go 1.25
 - Docker & Docker Compose (for Postgres)
-- (Optional) migrate CLI for running migrations: https://github.com/golang-migrate/migrat
-- (Optional) Air
+- Chi router: https://github.com/go-chi/chi
+- Migrate CLI for running migrations: https://github.com/golang-migrate/migrat
+- Air for live reloading: https://github.com/air-verse/air
+- Frontend (TDB - but Svelte or NextJS)
 
 Quick setup
 
