@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Vim swap/undo/backup files
+*.swp
+*.swo
+*.swn
+*.swx
+*.sublime-workspace
+*~               # editor backup files (tilde)
+*.un~            # vim undo files
+
+# Project build artifacts
+/bin/
+/tmp/
+bin/
+tmp/
+build-errors.log
+
+# Go tooling
+coverage.out
+/vendor/
+
+# Local environment / secrets
+.env
+.env.*
+.envrc
+
+# Docker local overrides
+docker-compose.override.yml
