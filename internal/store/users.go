@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -10,7 +11,7 @@ type User struct {
 	ID        int64     `json:"id"`
 	Username  string    `json:"username"`
 	Email     string    `json:"email"`
-	Password  string    `json:"_"`
+	Password  string    `json:"-"`
 	CreatedAt time.Time `json:"created_at"`
 }
 type UserStore struct {
@@ -39,4 +40,37 @@ func (s *UserStore) Create(ctx context.Context, user *User) error {
 		return err
 	}
 	return nil
+}
+func (s *UserStore) GetByID(ctx context.Context, userID int64) (*User, error) {
+	query := `
+		SELECT id, username, email, password, created_at
+		from users
+		WHERE id = $1;
+	`
+	//SQL timeout
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var user User
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		userID,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
 }
