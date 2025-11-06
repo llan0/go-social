@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// Ways to retrieve env variables
+
 func GetString(key, fallback string) string {
 	val, ok := os.LookupEnv(key)
 	if !ok {

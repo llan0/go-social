@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/llan0/go-social/internal/db"
-	"github.com/llan0/go-social/internal/env" // can use other packaged (this is my own implimentation)
+	"github.com/llan0/go-social/internal/env" // can use pkgs like godotenv (this is my own implimentation)
 	"github.com/llan0/go-social/internal/store"
 )
 
