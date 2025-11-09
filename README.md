@@ -44,6 +44,6 @@ Quick setup
    - OR just `air`
 
 Useful commands
-- Stop DB: `docker-compose down`
+- Seed DB: `make seed`
 - Recreate migrations: `make migration NAME`
 - Run migrations down: `make migrate-down NAME` (see Makefile)

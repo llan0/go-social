@@ -55,6 +55,7 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// Follow & Unfollow
 func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Request) {
 	unfollowedUser := app.getUserFromCtx(r)
 
@@ -112,5 +113,4 @@ func (app *application) userContextMiddleware(next http.Handler) http.Handler {
 func (app *application) getUserFromCtx(r *http.Request) *store.User {
 	user, _ := r.Context().Value(userCtx).(*store.User) // TODO: handle err
 	return user
-
 }
