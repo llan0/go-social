@@ -3,16 +3,20 @@ package store
 import (
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type PaginatedFeedQuery struct {
-	Limit  int    `json:"limit" validate:"gte=1,lte=20"`
-	Offset int    `json:"offset" validate:"gte=0"`
-	Sort   string `json:"sort" validate:"oneof=asc desc"`
+	Limit  int      `json:"limit" validate:"gte=1,lte=20"`
+	Offset int      `json:"offset" validate:"gte=0"`
+	Sort   string   `json:"sort" validate:"oneof=asc desc"`
+	Tags   []string `json:"tags" validate:"max=5"`
+	Search string   `json:"search" validate:"max=100"`
+	//TODO: filter by time
 }
 
 func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) {
-	//	vl/feed?limit=20&offset=10 -> parse this
+	//	vl/feed?limit=20&offset=10
 	qs := r.URL.Query()
 
 	limit := qs.Get("limit")
@@ -26,7 +30,7 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 
 	offset := qs.Get("offset")
 	if offset != "" {
-		l, err := strconv.Atoi(limit)
+		l, err := strconv.Atoi(offset)
 		if err != nil {
 			return fq, nil
 		}
@@ -37,5 +41,17 @@ func (fq PaginatedFeedQuery) Parse(r *http.Request) (PaginatedFeedQuery, error) 
 	if sort != "" {
 		fq.Sort = sort
 	}
+
+	search := qs.Get("search")
+	if search != "" {
+		fq.Search = search
+	}
+
+	tags := qs.Get("tags")
+	if tags != "" {
+		fq.Tags = strings.Split(tags, ",")
+	}
+
+	// TODO: Since and Until
 	return fq, nil
 }
