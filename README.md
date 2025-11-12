@@ -6,6 +6,7 @@ Using,
 - Chi router: https://github.com/go-chi/chi
 - Migrate CLI for running migrations: https://github.com/golang-migrate/migrat
 - Air for live reloading: https://github.com/air-verse/air
+- Go swagger for Docs: https://github.com/swaggo/swag
 - Frontend (TDB - but Svelte or NextJS)
 
 Quick setup

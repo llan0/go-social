@@ -1,32 +1,54 @@
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Vim swap/undo/backup files
-*.swp
-*.swo
-*.swn
-*.swx
-*.sublime-workspace
-*~               # editor backup files (tilde)
-*.un~            # vim undo files
-
-# Project build artifacts
-/bin/
-/tmp/
-bin/
-tmp/
-build-errors.log
-
-# Go tooling
-coverage.out
-/vendor/
-
-# Local environment / secrets
+tmp
 .env
-.env.*
 .envrc
+bin/
 
-# Docker local overrides
-docker-compose.override.yml
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
