@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -11,11 +10,13 @@ import (
 	"github.com/llan0/go-social/docs" // To generate swagger docs
 	"github.com/llan0/go-social/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger/v2" // http-swagger middleware
+	"go.uber.org/zap"
 )
 
 type application struct {
 	config config
 	store  store.Storage
+	logger *zap.SugaredLogger
 }
 
 type config struct {
@@ -79,7 +80,7 @@ func (app *application) mount() http.Handler {
 	return r
 }
 func (app *application) run(mux http.Handler) error {
-	// Docs
+	// Swagger docs
 	docs.SwaggerInfo.Version = version
 	docs.SwaggerInfo.Host = app.config.apiURL
 	docs.SwaggerInfo.BasePath = "/v1"
@@ -91,6 +92,6 @@ func (app *application) run(mux http.Handler) error {
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
 	}
-	log.Printf("server started at PORT %s", app.config.addr)
+	app.logger.Infow("server has started", "addr", app.config.addr, "env", app.config.env)
 	return srv.ListenAndServe()
 }

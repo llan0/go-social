@@ -4,10 +4,11 @@ Using,
 - Go 1.25
 - Docker & Docker Compose (for Postgres)
 - Chi router: https://github.com/go-chi/chi
-- Migrate CLI for running migrations: https://github.com/golang-migrate/migrat
+- Uber Zap for logging: https://pkg.go.dev/go.uber.org/zap#section-readme
+- Migrate CLI for DB migrations: https://github.com/golang-migrate/migrat
 - Air for live reloading: https://github.com/air-verse/air
-- Go swagger for Docs: https://github.com/swaggo/swag
-- Frontend (TDB - but Svelte or NextJS)
+- Go swagger for docs: https://github.com/swaggo/swag
+- Frontend (TDB - but Svelte or React)
 
 Quick setup
 
@@ -45,6 +46,7 @@ Quick setup
    - OR just `air`
 
 Useful commands
+- Regenerate docs: `make gen-docs` (configured to run with Air eveytime atm)
 - Seed DB: `make seed`
 - Recreate migrations: `make migration NAME`
 - Run migrations down: `make migrate-down NAME` (see Makefile)

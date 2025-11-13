@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/llan0/go-social/internal/db"
 	"github.com/llan0/go-social/internal/env" // can use pkgs like godotenv (this is my own implimentation)
 	"github.com/llan0/go-social/internal/store"
+	"go.uber.org/zap"
 )
 
 const version = "0.0.1"
@@ -42,19 +41,28 @@ func main() {
 		},
 		env: env.GetString("ENV", "development"),
 	}
+
+	// Logger
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	// Database
 	db, err := db.New(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdelConns, cfg.db.maxIdelTime)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal(err)
 	}
 	defer db.Close()
-	fmt.Println("db connection pool established!")
 
+	logger.Info("db connection pool established!")
+
+	// Storage
 	store := store.NewStorage(db)
 
 	app := &application{
 		config: cfg,
 		store:  store,
+		logger: logger,
 	}
 	mux := app.mount()
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 }
