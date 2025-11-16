@@ -40,6 +40,9 @@ func main() {
 			maxIdelTime:  env.GetDuration("DB_MAX_IDEL_TIME", 15*time.Minute),
 		},
 		env: env.GetString("ENV", "development"),
+		mail: mailConfig{
+			exp: time.Hour * 24 * 3, //user invitation expires in 3 days
+		},
 	}
 
 	// Logger
