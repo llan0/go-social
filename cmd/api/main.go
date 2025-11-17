@@ -49,6 +49,13 @@ func main() {
 				apiKey: env.GetString("RESEND_API_KEY", ""),
 			},
 		},
+		auth: authConfig{
+			basic: basicConfig{
+				// TODO: dont add default creds in PRODUCTION!
+				username: env.GetString("AUTH_BASIC_USERNAME", "admin"),
+				password: env.GetString("AUTH_BASIC_PASSWORD", "admin"),
+			},
+		},
 	}
 
 	// Logger
