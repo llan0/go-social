@@ -5,6 +5,7 @@ import (
 
 	"github.com/llan0/go-social/internal/db"
 	"github.com/llan0/go-social/internal/env" // can use pkgs like godotenv (this is my own implimentation)
+	"github.com/llan0/go-social/internal/mailer"
 	"github.com/llan0/go-social/internal/store"
 	"go.uber.org/zap"
 )
@@ -31,8 +32,9 @@ const version = "0.0.1"
 
 func main() {
 	cfg := config{
-		addr:   env.GetString("ADDR", ":8080"),
-		apiURL: env.GetString("EXTERNAL_URL", "localhost:8080"),
+		addr:        env.GetString("ADDR", ":8080"),
+		apiURL:      env.GetString("EXTERNAL_URL", "localhost:8080"),
+		frontendURL: env.GetString("FRONTEND_URL", "http://localhost:4000"),
 		db: dbConfig{
 			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/social?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONN", 30),
@@ -41,7 +43,11 @@ func main() {
 		},
 		env: env.GetString("ENV", "development"),
 		mail: mailConfig{
-			exp: time.Hour * 24 * 3, //user invitation expires in 3 days
+			exp:       time.Hour * 24 * 3, // 3 days
+			fromEmail: env.GetString("FROM_EMAIL", ""),
+			resend: resendConfig{
+				apiKey: env.GetString("RESEND_API_KEY", ""),
+			},
 		},
 	}
 
@@ -55,16 +61,19 @@ func main() {
 		logger.Fatal(err)
 	}
 	defer db.Close()
-
 	logger.Info("db connection pool established!")
 
 	// Storage
 	store := store.NewStorage(db)
 
+	// Mailer
+	resendClient := mailer.NewResendClient(cfg.mail.resend.apiKey, cfg.mail.fromEmail)
+
 	app := &application{
 		config: cfg,
 		store:  store,
 		logger: logger,
+		mailer: resendClient,
 	}
 	mux := app.mount()
 	logger.Fatal(app.run(mux))
