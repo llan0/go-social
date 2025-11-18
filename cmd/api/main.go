@@ -3,6 +3,7 @@ package main
 import (
 	"time"
 
+	"github.com/llan0/go-social/internal/auth"
 	"github.com/llan0/go-social/internal/db"
 	"github.com/llan0/go-social/internal/env" // can use pkgs like godotenv (this is my own implimentation)
 	"github.com/llan0/go-social/internal/mailer"
@@ -55,6 +56,12 @@ func main() {
 				username: env.GetString("AUTH_BASIC_USERNAME", "admin"),
 				password: env.GetString("AUTH_BASIC_PASSWORD", "admin"),
 			},
+			token: tokenConfig{
+				// TODO: dont add default creds in PRODUCTION!
+				secret: env.GetString("AUTH_TOKEN_SECRET", "dev"),
+				exp:    time.Hour * 24 * 3, // 3 days
+				iss:    "gosocial",
+			},
 		},
 	}
 
@@ -76,11 +83,19 @@ func main() {
 	// Mailer
 	resendClient := mailer.NewResendClient(cfg.mail.resend.apiKey, cfg.mail.fromEmail)
 
+	// Authenticator
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss,
+	)
+
 	app := &application{
-		config: cfg,
-		store:  store,
-		logger: logger,
-		mailer: resendClient,
+		config:        cfg,
+		store:         store,
+		logger:        logger,
+		mailer:        resendClient,
+		authenticator: jwtAuthenticator,
 	}
 	mux := app.mount()
 	logger.Fatal(app.run(mux))

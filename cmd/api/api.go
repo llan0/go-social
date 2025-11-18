@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/llan0/go-social/docs" // To generate swagger docs
+	"github.com/llan0/go-social/internal/auth"
 	"github.com/llan0/go-social/internal/mailer"
 	"github.com/llan0/go-social/internal/store"
 	httpSwagger "github.com/swaggo/http-swagger/v2" // http-swagger middleware
@@ -15,10 +16,11 @@ import (
 )
 
 type application struct {
-	config config
-	store  store.Storage
-	logger *zap.SugaredLogger
-	mailer mailer.Client
+	config        config
+	store         store.Storage
+	logger        *zap.SugaredLogger
+	mailer        mailer.Client
+	authenticator auth.Authenticator
 }
 
 type config struct {
@@ -33,8 +35,13 @@ type config struct {
 
 type authConfig struct {
 	basic basicConfig
+	token tokenConfig
 }
-
+type tokenConfig struct {
+	secret string
+	exp    time.Duration
+	iss    string
+}
 type basicConfig struct {
 	username string
 	password string
@@ -68,7 +75,7 @@ func (app *application) mount() http.Handler {
 		r.With(app.BasicAuthMiddleware()).Get("/health", app.healthCheckHandler)
 
 		docsURL := fmt.Sprintf("%s/swagger/doc.json", app.config.addr)
-		r.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
+		r.With(app.BasicAuthMiddleware()).Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(docsURL)))
 
 		r.Route("/posts", func(r chi.Router) {
 			r.Post("/", app.createPostHandler)
@@ -89,7 +96,6 @@ func (app *application) mount() http.Handler {
 				r.Use(app.userContextMiddleware)
 
 				r.Get("/", app.getUserHandler)
-
 				r.Put("/follow", app.followUserHandler)
 				r.Put("/unfollow", app.unfollowUserHandler)
 			})
@@ -102,6 +108,7 @@ func (app *application) mount() http.Handler {
 		// public route
 		r.Route("/authentication", func(r chi.Router) {
 			r.Post("/user", app.registerUserHandler)
+			r.Post("/token", app.createTokenHandler)
 		})
 	})
 
