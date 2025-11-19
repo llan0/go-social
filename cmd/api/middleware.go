@@ -22,7 +22,7 @@ func (app *application) AuthTokenMiddleware(next http.Handler) http.Handler {
 
 		// Parse header: authentization: Bearer <token>
 		parts := strings.Split(authHeader, " ")
-		if len(parts) != 2 || parts[0] != "Basic" {
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 			app.unauthorizedErrorResponse(w, r, fmt.Errorf("authorization header is malformed"))
 			return
 		}

@@ -46,8 +46,8 @@ func (app *application) getUserFeedHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	ctx := r.Context()
-
-	feed, err := app.store.Posts.GetUserFeed(ctx, int64(3), fq) // TODO: hardcoded userID atm, need to get this from auth session
+	user := app.getUserFromCtx(r)
+	feed, err := app.store.Posts.GetUserFeed(ctx, user.ID, fq)
 	if err != nil {
 		app.internalServerError(w, r, err)
 		return
