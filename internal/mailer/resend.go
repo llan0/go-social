@@ -59,6 +59,7 @@ func (m *ResendMailer) sendWithRetry(params *resend.SendEmailRequest) (string, e
 	for i := range MaxRetries {
 		sent, retryErr := m.client.Emails.Send(params)
 		if retryErr == nil {
+			// cant use logger??
 			log.Printf("Email sent successfully: %v", sent.Id)
 			return sent.Id, nil
 		}

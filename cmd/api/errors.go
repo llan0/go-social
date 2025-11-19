@@ -4,6 +4,11 @@ import (
 	"net/http"
 )
 
+func (app *application) forbiddenResponse(w http.ResponseWriter, r *http.Request) {
+	app.logger.Errorw("forbidden", "method", r.Method, "path", r.URL.Path)
+	writeJSONError(w, http.StatusForbidden, "forbidden")
+}
+
 func (app *application) internalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Errorw("internal server error", "method", r.Method, "path", r.URL.Path, "error", err.Error())
 	writeJSONError(w, http.StatusInternalServerError, "server ran into an issue!")
