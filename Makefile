@@ -1,9 +1,7 @@
-
 include .envrc
 # only needed if using .env (not since im using direnv)
 
 MIGRATIONS_PATH = ./cmd/migrate/migrations
-
 
 .PHONY: migrate-create
 migration:

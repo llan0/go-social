@@ -5,9 +5,11 @@ import (
 
 	"github.com/llan0/go-social/internal/auth"
 	"github.com/llan0/go-social/internal/db"
-	"github.com/llan0/go-social/internal/env" // can use pkgs like godotenv (this is my own implimentation)
+	"github.com/llan0/go-social/internal/env"
 	"github.com/llan0/go-social/internal/mailer"
 	"github.com/llan0/go-social/internal/store"
+	"github.com/llan0/go-social/internal/store/cache"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
 
@@ -41,6 +43,12 @@ func main() {
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONN", 30),
 			maxIdelConns: env.GetInt("DB_MAX_IDEL_CONN", 30),
 			maxIdelTime:  env.GetDuration("DB_MAX_IDEL_TIME", 15*time.Minute),
+		},
+		redisCfg: redisConfig{
+			addr:   env.GetString("REDIS_ADDR", "localhost:6379"),
+			pw:     env.GetString("REDIS_PW", ""),
+			db:     env.GetInt("REDIS_DB", 0),
+			enable: env.GetBool("REDIS_ENABLED", true),
 		},
 		env: env.GetString("ENV", "development"),
 		mail: mailConfig{
@@ -77,9 +85,6 @@ func main() {
 	defer db.Close()
 	logger.Info("db connection pool established!")
 
-	// Storage
-	store := store.NewStorage(db)
-
 	// Mailer
 	resendClient := mailer.NewResendClient(cfg.mail.resend.apiKey, cfg.mail.fromEmail)
 
@@ -90,9 +95,18 @@ func main() {
 		cfg.auth.token.iss,
 	)
 
+	// Redis cache
+	var rdb *redis.Client
+	if cfg.redisCfg.enable {
+		rdb = cache.NewRedisClient(cfg.redisCfg.addr, cfg.redisCfg.pw, cfg.redisCfg.db)
+		logger.Info("redis cache connection established")
+		defer rdb.Close()
+	}
+
 	app := &application{
 		config:        cfg,
-		store:         store,
+		store:         store.NewStorage(db),
+		cacheStore:    cache.NewRedisStorage(rdb),
 		logger:        logger,
 		mailer:        resendClient,
 		authenticator: jwtAuthenticator,
